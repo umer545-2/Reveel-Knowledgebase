@@ -85,12 +85,58 @@ Question: "${query}"
     const match = articles[selectedIndex];
 
     if (!match || !match.link) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify({
-          answer: "No relevant article found in the knowledge base.",
-        }),
-      };
+      // If no match or no link, check if the question is relevant
+      // Ask GPT if the question is relevant to the knowledge base
+      const relevancePrompt = `
+You are a knowledge base assistant for Reveel. 
+If the following question is NOT related to Reveel or its articles, reply ONLY with "irrelevant".
+If it IS related, reply ONLY with "relevant" if it is relevant and there is no articles on it reply with article-doesnt-exist.
+
+Question: "${query}"
+`;
+
+      const relevanceResponse = await fetch(
+        "https://api.openai.com/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${openAiApiKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [
+              {
+                role: "system",
+                content: "You are a strict knowledge base assistant.",
+              },
+              { role: "user", content: relevancePrompt },
+            ],
+            temperature: 0,
+          }),
+        }
+      );
+
+      const relevanceResult = await relevanceResponse.json();
+      const relevance =
+        relevanceResult.choices &&
+        relevanceResult.choices[0] &&
+        relevanceResult.choices[0].message &&
+        relevanceResult.choices[0].message.content
+          ? relevanceResult.choices[0].message.content.trim().toLowerCase()
+          : "";
+
+      if (relevance === "irrelevant") {
+        return {
+          statusCode: 200,
+          body: JSON.stringify("Sorry, I can only answer questions related to Reveel."),
+        };
+      } else {
+        return {
+          statusCode: 200,
+          body: JSON.stringify("No relevant article found in the knowledge base."),
+        };
+      }
     }
 
     // Step 2: Fetch and summarize the article content
