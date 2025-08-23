@@ -129,12 +129,16 @@ Question: "${query}"
       if (relevance === "irrelevant") {
         return {
           statusCode: 200,
-          body: JSON.stringify("Sorry, I can only answer questions related to Reveel."),
+          body: JSON.stringify(
+            "Sorry, I can only answer questions related to Reveel."
+          ),
         };
       } else {
         return {
           statusCode: 200,
-          body: JSON.stringify("No relevant article found in the knowledge base."),
+          body: JSON.stringify(
+            "No relevant article found in the knowledge base."
+          ),
         };
       }
     }
@@ -217,9 +221,11 @@ Question: "${query}"
       };
     }
 
+    const formattedAnswer = answer.replace(/[\n\r]+/g, " ").replace(/"/g, "");
+
     return {
       statusCode: 200,
-      body: JSON.stringify(`${answer}\n\nSource: ${match.link}`),
+      body: JSON.stringify(`${formattedAnswer} Source: ${match.link}`),
     };
   } catch (err) {
     return {
