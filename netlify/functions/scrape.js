@@ -210,6 +210,7 @@ Question: "${query}"
     const lowerAnswer = answer.toLowerCase();
     if (
       lowerAnswer.includes("no, there is no mention") ||
+      lowerAnswer.includes("the article does not mention") ||
       lowerAnswer.includes("not mentioned") ||
       lowerAnswer.includes("not found") ||
       lowerAnswer.includes("no information") ||
