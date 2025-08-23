@@ -158,9 +158,8 @@ Question: "${query}"
 
     return {
       statusCode: 200,
-      body: JSON.stringify({
-        answer: `${answer}\n\nSource: ${match.link}`,
-      }),
+      body: JSON.stringify(`${answer}\n\nSource: ${match.link}`),
+    };
     };
   } catch (err) {
     return {
