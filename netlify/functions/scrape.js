@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+// Use native fetch (Node.js 18+ on Netlify)
 import * as cheerio from "cheerio";
 
 const BASE_URL = "https://help.reveel.net";
