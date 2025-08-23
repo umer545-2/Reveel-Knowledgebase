@@ -29,11 +29,9 @@ export const handler = async (event) => {
       }
     });
 
-    // Collect all articles in parallel
-    let match = null;
-    const folderFetches = folderLinks.map(async (folderLink) => {
-      if (match) return; // Early exit if match found
-
+    // Search for a match and end as soon as found
+    const openAiApiKey = process.env.OPENAI_API_KEY;
+    for (const folderLink of folderLinks) {
       const res = await fetch(folderLink);
       const pageHtml = await res.text();
       const $$ = cheerio.load(pageHtml);
@@ -46,10 +44,7 @@ export const handler = async (event) => {
         }
       });
 
-      // Fetch articles in parallel
       for (const articleLink of articleLinks) {
-        if (match) break; // Early exit if match found
-
         const articleRes = await fetch(articleLink);
         const articleHtml = await articleRes.text();
         const $$$ = cheerio.load(articleHtml);
@@ -57,7 +52,6 @@ export const handler = async (event) => {
         const title = $$$("h1, h2").first().text().trim();
 
         // Use OpenAI to check for semantic match
-        const openAiApiKey = process.env.OPENAI_API_KEY;
         const prompt = `
 You are a semantic search assistant.
 Question: "${query}"
@@ -91,22 +85,15 @@ Is this a match (at least 85% similar)? Reply with ONLY "YES" or "NO".
         const answer = result.choices[0].message.content.trim();
 
         if (answer.toUpperCase() === "YES") {
-          match = {
-            matched_title: title,
-            source_link: articleLink,
+          return {
+            statusCode: 200,
+            body: JSON.stringify({
+              matched_title: title,
+              source_link: articleLink,
+            }),
           };
-          break;
         }
       }
-    });
-
-    await Promise.all(folderFetches);
-
-    if (match) {
-      return {
-        statusCode: 200,
-        body: JSON.stringify(match),
-      };
     }
 
     // If no match found
@@ -116,7 +103,7 @@ Is this a match (at least 85% similar)? Reply with ONLY "YES" or "NO".
         matched_title: "article-doesnt-exist",
         source_link: "",
       }),
-    };;
+    };
   } catch (err) {
     return {
       statusCode: 500,
