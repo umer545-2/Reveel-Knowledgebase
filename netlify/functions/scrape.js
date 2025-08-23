@@ -202,6 +202,21 @@ Question: "${query}"
         ? result.choices[0].message.content.trim()
         : "";
 
+    // If GPT says there's no relevant info, return a generic message instead
+    const lowerAnswer = answer.toLowerCase();
+    if (
+      lowerAnswer.includes("no, there is no mention") ||
+      lowerAnswer.includes("not mentioned") ||
+      lowerAnswer.includes("not found") ||
+      lowerAnswer.includes("no information") ||
+      lowerAnswer.includes("no relevant information")
+    ) {
+      return {
+        statusCode: 200,
+        body: JSON.stringify("article-doesnt-exist"),
+      };
+    }
+
     return {
       statusCode: 200,
       body: JSON.stringify(`${answer}\n\nSource: ${match.link}`),
