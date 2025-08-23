@@ -166,6 +166,7 @@ Question: "${query}"
     const summaryPrompt = `
 You are an expert assistant limited to the following knowledge base article content.
 Summarize the answer to the question below in a short, concise manner, using ONLY the information from the article.
+If there is no relevant content in the article to answer the question, reply ONLY with: article-doesnt-exist.
 
 Article Title: "${match.title}"
 Article Content:
@@ -207,15 +208,7 @@ Question: "${query}"
         : "";
 
     // If GPT says there's no relevant info, return a generic message instead
-    const lowerAnswer = answer.toLowerCase();
-    if (
-      lowerAnswer.includes("no, there is no mention") ||
-      lowerAnswer.includes("the article does not mention") ||
-      lowerAnswer.includes("not mentioned") ||
-      lowerAnswer.includes("not found") ||
-      lowerAnswer.includes("no information") ||
-      lowerAnswer.includes("no relevant information")
-    ) {
+    if (answer === "article-doesnt-exist") {
       return {
         statusCode: 200,
         body: JSON.stringify("article-doesnt-exist"),
@@ -223,7 +216,6 @@ Question: "${query}"
     }
 
     const formattedAnswer = answer.replace(/[\n\r]+/g, " ").replace(/"/g, "");
-
     return {
       statusCode: 200,
       body: JSON.stringify(`${formattedAnswer} Source: ${match.link}`),
