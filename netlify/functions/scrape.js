@@ -160,7 +160,6 @@ Question: "${query}"
       statusCode: 200,
       body: JSON.stringify(`${answer}\n\nSource: ${match.link}`),
     };
-    };
   } catch (err) {
     return {
       statusCode: 500,
