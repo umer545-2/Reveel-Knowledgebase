@@ -12,7 +12,6 @@ export const handler = async (event) => {
       };
     }
 
-    // Read articles from local JSON file
     const articlesPath = path.join(process.cwd(), "articles.json");
     let articles = [];
     try {
@@ -36,7 +35,6 @@ export const handler = async (event) => {
 
     const openAiApiKey = process.env.OPENAI_API_KEY;
 
-    // Step 1: Ask GPT to pick the best article
     const titlesList = articles
       .map((a, i) => `${i + 1}. ${a.title}`)
       .join("\n");
@@ -80,13 +78,11 @@ Question: "${query}"
         ? selectionResult.choices[0].message.content.trim()
         : "";
 
-    // Parse the selected article index
     const selectedIndex = parseInt(selectionText.match(/\d+/)?.[0], 10) - 1;
     const match = articles[selectedIndex];
 
     if (!match || !match.link) {
-      // If no match or no link, check if the question is relevant
-      // Ask GPT if the question is relevant to the knowledge base
+
       const relevancePrompt = `
 You are a knowledge base assistant for Reveel. 
 If the following question is NOT related to Reveel or its articles, reply ONLY with "irrelevant".
@@ -143,7 +139,6 @@ Question: "${query}"
       }
     }
 
-    // Step 2: Fetch and summarize the article content
     const articleRes = await fetch(match.link);
     const articleHtml = await articleRes.text();
 
@@ -207,7 +202,6 @@ Question: "${query}"
         ? result.choices[0].message.content.trim()
         : "";
 
-    // If GPT says there's no relevant info, return a generic message instead
     if (answer === "article-doesnt-exist") {
       return {
         statusCode: 200,
