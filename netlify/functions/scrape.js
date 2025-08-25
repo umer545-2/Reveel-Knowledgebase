@@ -129,7 +129,6 @@ export const handler = async (event) => {
       };
     }
 
-    // Parse the number and get the matching article link
     const index = parseInt(answer, 10) - 1;
     if (
       isNaN(index) ||
