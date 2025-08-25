@@ -32,16 +32,32 @@ export const handler = async (event) => {
 
     const openAiApiKey = process.env.OPENAI_API_KEY;
 
+    // Prepare numbered list for GPT (titles only)
     const articleList = articles
-      .map((a, i) => `${i + 1}. ${a.title} (${a.link})`)
+      .map((a, i) => `${i + 1}. ${a.title}`)
       .join("\n");
 
     const prompt = `
-      You are a knowledge base assistant. Here is a list of article titles and links:
+      You are a knowledge base assistant. Here is a list of article titles:
       ${articleList}
-      Based on the following question, reply ONLY with the direct URL of the most relevant article (just the link, nothing else). If none are relevant, reply ONLY with: article-doesnt-exist.
-      Do NOT format your answer as markdown, do NOT include the title, do NOT use brackets or parentheses, do NOT add any extra text.
-      Question: "${query}" `;
+      Based on the following question, reply ONLY with the number of the most relevant article (just the number, nothing else). If none are relevant, reply ONLY with: article-doesnt-exist.
+      If the question contains extra words, typos, or repeated phrases, ignore them and focus on the main topic. Always pick the closest relevant article, even if the question is not perfectly phrased.
+
+      The question must be relevant to the articles provided. If it is not, reply ONLY with: "I can only answer questions about reveel".
+
+      Examples:
+      Question: "what is reveel about"
+      Answer: 7
+
+      Question: "what is reveel gng pls tell gng plsssss"
+      Answer: 7
+
+      Question: "how do i sign up for reveel"
+      Answer: 5
+
+      Do NOT format your answer as markdown, do NOT include the title, do NOT add any extra text.
+      Question: "${query}"
+      `;
 
     const gptResponse = await fetch(
       "https://api.openai.com/v1/chat/completions",
@@ -73,15 +89,33 @@ export const handler = async (event) => {
       result.choices[0].message.content
         ? result.choices[0].message.content.trim()
         : "";
+
     if (answer === "article-doesnt-exist") {
       return {
         statusCode: 404,
         body: JSON.stringify({ error: "article-doesnt-exist" }),
       };
     }
+
+    // Parse the number and get the matching article link
+    const index = parseInt(answer, 10) - 1;
+    if (
+      isNaN(index) ||
+      !articles[index] ||
+      !articles[index].title ||
+      !articles[index].link
+    ) {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: "article-doesnt-exist" }),
+      };
+    }
+
     return {
       statusCode: 200,
-      body: JSON.stringify(`Here is a blog matching your question: <a href="${answer}">${answer}</a>`),
+      body: JSON.stringify(
+        `Here is a blog matching your question: ${articles[index].link}`
+      ),
     };
   } catch (err) {
     return {
