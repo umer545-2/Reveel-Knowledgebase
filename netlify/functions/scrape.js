@@ -38,14 +38,38 @@ export const handler = async (event) => {
       .join("\n");
 
     const prompt = `
+      IMPORTANT: If the question is NOT about Reveel or its articles, reply ONLY with: I can only answer questions about reveel. THIS IS THE ONLY VALID RESPONSE FOR IRRELEVANT QUESTIONS. DO NOT USE article-doesnt-exist FOR IRRELEVANT QUESTIONS. REPEAT: DO NOT USE article-doesnt-exist FOR IRRELEVANT QUESTIONS.
       You are a knowledge base assistant. Here is a list of article titles:
       ${articleList}
-      Based on the following question, reply ONLY with the number of the most relevant article (just the number, nothing else). If none are relevant, reply ONLY with: article-doesnt-exist.
+
+      If the question IS about Reveel but no matching article exists, reply ONLY with: article-doesnt-exist.
+
+      Examples of irrelevant questions and their expected answer:
+      Question: "What is the capital of France?"
+      Answer: I can only answer questions about reveel
+
+      Question: "Tell me a joke."
+      Answer: I can only answer questions about reveel
+
+      Question: "wsg gng"
+      Answer: I can only answer questions about reveel
+
+      Question: "yo what's up"
+      Answer: I can only answer questions about reveel
+
+      Question: "hello"
+      Answer: I can only answer questions about reveel
+
+      Question: "who is the bay harbor butcher"
+      Answer: I can only answer questions about reveel
+
+      Question: "what the helly"
+      Answer: I can only answer questions about reveel
+
+      If the question is relevant, reply ONLY with the number of the most relevant article (just the number, nothing else). If none are relevant, reply ONLY with: article-doesnt-exist.
       If the question contains extra words, typos, or repeated phrases, ignore them and focus on the main topic. Always pick the closest relevant article, even if the question is not perfectly phrased.
 
-      The question must be relevant to the articles provided. If it is not, reply ONLY with: "I can only answer questions about reveel".
-
-      Examples:
+      Examples of relevant questions and their expected answer:
       Question: "what is reveel about"
       Answer: 7
 
@@ -68,7 +92,7 @@ export const handler = async (event) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "gpt-3.5-turbo",
+          model: "gpt-4o", // Fast and cheap
           messages: [
             {
               role: "system",
@@ -94,6 +118,14 @@ export const handler = async (event) => {
       return {
         statusCode: 404,
         body: JSON.stringify({ error: "article-doesnt-exist" }),
+      };
+    }
+    if (answer === "I can only answer questions about reveel") {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({
+          error: "I can only answer questions about reveel",
+        }),
       };
     }
 
