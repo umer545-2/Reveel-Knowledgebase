@@ -82,11 +82,12 @@ Question: "${query}"
     const match = articles[selectedIndex];
 
     if (!match || !match.link) {
-
       const relevancePrompt = `
 You are a knowledge base assistant for Reveel. 
 If the following question is NOT related to Reveel or its articles, reply ONLY with "irrelevant".
 If it IS related, reply ONLY with "relevant" if it is relevant and there is no articles on it reply with article-doesnt-exist.
+If the question includes bad words reply with "Sorry, i cannot answer that"
+
 
 Question: "${query}"
 `;
