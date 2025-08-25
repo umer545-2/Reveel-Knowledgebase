@@ -123,9 +123,7 @@ export const handler = async (event) => {
     if (answer === "I can only answer questions about reveel") {
       return {
         statusCode: 200,
-        body: JSON.stringify({
-          "I can only answer questions about reveel"
-        }),
+        body: JSON.stringify("I can only answer questions about reveel"),
       };
     }
 
