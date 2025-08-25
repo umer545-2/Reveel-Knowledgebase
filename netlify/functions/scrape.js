@@ -73,10 +73,15 @@ export const handler = async (event) => {
       result.choices[0].message.content
         ? result.choices[0].message.content.trim()
         : "";
-
+    if (answer === "article-doesnt-exist") {
+      return {
+        statusCode: 404,
+        body: JSON.stringify({ error: "article-doesnt-exist" }),
+      };
+    }
     return {
       statusCode: 200,
-      body: JSON.stringify(`Here is a blog matching your question: ${answer}`),
+      body: JSON.stringify(`Here is a blog matching your question: <a href="${answer}">${answer}</a>`),
     };
   } catch (err) {
     return {
