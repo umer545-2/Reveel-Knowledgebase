@@ -116,13 +116,13 @@ export const handler = async (event) => {
 
     if (answer === "article-doesnt-exist") {
       return {
-        statusCode: 404,
+        statusCode: 200,
         body: JSON.stringify({ error: "article-doesnt-exist" }),
       };
     }
     if (answer === "I can only answer questions about reveel") {
       return {
-        statusCode: 404,
+        statusCode: 200,
         body: JSON.stringify({
           error: "I can only answer questions about reveel",
         }),
@@ -138,7 +138,7 @@ export const handler = async (event) => {
       !articles[index].link
     ) {
       return {
-        statusCode: 404,
+        statusCode: 200,
         body: JSON.stringify({ error: "article-doesnt-exist" }),
       };
     }
