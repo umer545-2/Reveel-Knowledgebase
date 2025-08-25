@@ -124,7 +124,7 @@ export const handler = async (event) => {
       return {
         statusCode: 200,
         body: JSON.stringify({
-          error: "I can only answer questions about reveel",
+          "I can only answer questions about reveel"
         }),
       };
     }
